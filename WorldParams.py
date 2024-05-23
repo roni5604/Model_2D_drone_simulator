@@ -1,0 +1,10 @@
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+PLAYER_MAX_SPEED = 0.5  # meters per second, reduced speed
+PLAYER_ACCELERATION = 0.2  # meters per second^2, reduced acceleration
+ANGULAR_SPEED = 100  # degrees per second
+MAX_ANGLE = 10  # degrees
+FLIGHT_TIME = 480  # seconds
+SAFE_DISTANCE = 20  # Distance from the black area
+BUTTON_WIDTH = 100
+BUTTON_HEIGHT = 50
