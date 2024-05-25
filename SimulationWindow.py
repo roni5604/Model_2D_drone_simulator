@@ -1,112 +1,151 @@
 import pygame
-import sys
-import time
-from Drone import Drone
+import threading
+
+from AutoAlgo1 import AutoAlgo1
+from CPU import CPU
 from Map import Map
-from Graph import Graph
-from Tools import find_safe_starting_position
-from WorldParams import SCREEN_WIDTH, SCREEN_HEIGHT, PLAYER_MAX_SPEED, PLAYER_ACCELERATION, ANGULAR_SPEED, MAX_ANGLE, \
-    FLIGHT_TIME, SAFE_DISTANCE, BUTTON_WIDTH, BUTTON_HEIGHT
-from DistanceLogger import DistanceLogger
+from Point import Point
 
 
-def main():
-    pygame.init()
+class Button:
+    def __init__(self, text, x, y, width, height, action=None):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color = (200, 200, 200)
+        self.text = text
+        self.action = action
 
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption('2D Map Navigation')
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, self.rect)
+        font = pygame.font.Font(None, 36)
+        text_surf = font.render(self.text, True, (0, 0, 0))
+        text_rect = text_surf.get_rect(center=self.rect.center)
+        screen.blit(text_surf, text_rect.topleft)
 
-    map_obj = Map("Maps/p12.png", SCREEN_WIDTH, SCREEN_HEIGHT)
-    drone_x, drone_y = find_safe_starting_position(map_obj, SAFE_DISTANCE)
-    drone = Drone(drone_x, drone_y, PLAYER_MAX_SPEED, PLAYER_ACCELERATION, ANGULAR_SPEED, MAX_ANGLE, FLIGHT_TIME)
+    def collidepoint(self, pos):
+        return self.rect.collidepoint(pos)
 
-    distance_logger = DistanceLogger(drone)
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.collidepoint(event.pos) and self.action:
+                self.action()
 
-    start_button_rect = pygame.Rect(50, SCREEN_HEIGHT - 70, BUTTON_WIDTH, BUTTON_HEIGHT)
-    stop_button_rect = pygame.Rect(200, SCREEN_HEIGHT - 70, BUTTON_WIDTH, BUTTON_HEIGHT)
 
-    game_running = False
-    flight_start_time = None
+class SimulationWindow:
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((1800, 700))
+        pygame.display.set_caption("Drone Simulator")
+        self.clock = pygame.time.Clock()
+        self.running = True
+        self.toogleStop = True
+        self.info_label = None
+        self.toogleRealMap = True
+        self.algo1 = None
+        self.initialize()
 
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if game_running:
-                    if event.key == pygame.K_LEFT:
-                        drone.roll = max(drone.roll - ANGULAR_SPEED * 0.1, -MAX_ANGLE)
-                    elif event.key == pygame.K_RIGHT:
-                        drone.roll = min(drone.roll + ANGULAR_SPEED * 0.1, MAX_ANGLE)
-                    elif event.key == pygame.K_UP:
-                        drone.pitch = max(drone.pitch - ANGULAR_SPEED * 0.1, -MAX_ANGLE)
-                    elif event.key == pygame.K_DOWN:
-                        drone.pitch = min(drone.pitch + ANGULAR_SPEED * 0.1, MAX_ANGLE)
-                    elif event.key == pygame.K_w:
-                        drone.yaw += ANGULAR_SPEED * 0.1
-                    elif event.key == pygame.K_s:
-                        drone.yaw -= ANGULAR_SPEED * 0.1
-                    elif event.key == pygame.K_SPACE:
-                        if drone.altitude == 0:
-                            drone.altitude = 1  # Takeoff
-                        else:
-                            drone.altitude = 0  # Landing
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if start_button_rect.collidepoint(event.pos):
-                    drone.x, drone.y = find_safe_starting_position(map_obj,
-                                                                   SAFE_DISTANCE)  # Reset to the fixed walkable starting position
-                    drone.pitch = drone.roll = drone.yaw = 0
-                    drone.speed_x = drone.speed_y = 0
-                    drone.altitude = 0
-                    drone.battery_status = FLIGHT_TIME
-                    game_running = True
-                    flight_start_time = time.time()
-                    distance_logger.start_logging()
-                elif stop_button_rect.collidepoint(event.pos):
-                    game_running = False
-                    distance_logger.stop_logging()
+    def initialize(self):
+        self.buttons = [
+            Button("Start/Pause", 1500, 600, 170, 50, self.toggle_cpu),
+            Button("speedUp", 1400, 100, 100, 50, self.speed_up),
+            Button("speedDown", 1550, 100, 150, 50, self.speed_down),
+            Button("spin180", 1400, 200, 100, 50, lambda: self.spin_by(180)),
+            Button("spin90", 1550, 200, 100, 50, lambda: self.spin_by(90)),
+            Button("spin60", 1700, 200, 100, 50, lambda: self.spin_by(60)),
+            Button("spin45", 1300, 300, 100, 50, lambda: self.spin_by(45)),
+            Button("spin30", 1400, 300, 100, 50, lambda: self.spin_by(30)),
+            Button("spin-30", 1500, 300, 100, 50, lambda: self.spin_by(-30)),
+            Button("spin-45", 1600, 300, 100, 50, lambda: self.spin_by(-45)),
+            Button("spin-60", 1700, 300, 100, 50, lambda: self.spin_by(-60)),
+            Button("toggle Map", 1400, 400, 150, 50, self.toggle_real_map),
+            Button("toggle AI", 1600, 400, 150, 50, self.toggle_ai),
+            Button("Return Home", 1400, 500, 120, 50, self.return_home_func),
+            Button("Open Graph", 1600, 500, 120, 50, self.open_graph),
+        ]
 
-        if game_running:
-            # Update battery status
-            drone.battery_status = max(0, FLIGHT_TIME - (time.time() - flight_start_time))
-            if drone.battery_status == 0:
-                print("Game Over: Battery depleted.")
-                game_running = False
-                distance_logger.stop_logging()
+        self.info_label2_rect = pygame.Rect(1450, 0, 300, 80)
 
-            # Update speed based on pitch and roll
-            drone.update_speed()
 
-            # Movement logic
-            new_x = drone.x + drone.speed_x
-            new_y = drone.y + drone.speed_y
+        self.main()
 
-            # Check if the new position is walkable and within bounds
-            if not map_obj.is_walkable(new_x, new_y):
-                print("Game Over: Player moved out of the map or into an unwalkable area.")
-                game_running = False
-                distance_logger.stop_logging()
-            else:
-                drone.x, drone.y = new_x, new_y
+    def toggle_cpu(self):
+        if self.toogleStop:
+            CPU.stop_all_cpus()
+        else:
+            CPU.resume_all_cpus()
+        self.toogleStop = not self.toogleStop
 
-        # Clear the screen
-        screen.fill((0, 0, 0))
+    def speed_up(self):
+        self.algo1.speed_up()
 
-        # Draw the map and the player
-        screen.blit(map_obj.map_image, map_obj.map_image.get_rect())
-        Graph.draw_drone(screen, drone)
+    def speed_down(self):
+        self.algo1.speed_down()
 
-        # Draw buttons
-        Graph.draw_buttons(screen, game_running, start_button_rect, stop_button_rect)
+    def spin_by(self, degrees):
+        self.algo1.spin_by(degrees)
 
-        # Update the display
-        pygame.display.flip()
+    def toggle_real_map(self):
+        self.algo1.toogle_real_map = not self.algo1.toogle_real_map
 
-    # Quit Pygame
-    pygame.quit()
-    sys.exit()
+    def toggle_ai(self):
+        self.algo1.toogle_ai = not self.algo1.toogle_ai
+
+    def return_home_func(self):
+        self.algo1.return_home = not self.algo1.return_home
+        self.algo1.speed_down()
+        self.algo1.spin_by2(180, True, lambda: self.algo1.speed_up())
+
+    def open_graph(self):
+        self.algo1.m_graph.draw_graph(self.screen)
+
+    def update_info(self, delta_time):
+        font = pygame.font.Font(None, 24)
+        info_text2 = f"algo1.counter: {self.algo1.counter} isRisky: {self.algo1.is_risky}, risky_dis: {self.algo1.risky_dis}"
+        text_surf2 = font.render(info_text2, True, (0, 0, 0))
+        pygame.draw.rect(self.screen, (255, 255, 255), self.info_label2_rect)
+        self.screen.blit(text_surf2, self.info_label2_rect.topleft)
+
+        for button in self.buttons:
+            button.draw(self.screen)
+
+    def main(self):
+        map_num = 4
+        start_points = [
+            Point(100, 50),
+            Point(50, 60),
+            Point(73, 68),
+            Point(84, 73),
+            Point(92, 100)
+        ]
+        map_path = f"Maps/p1{map_num}.png"
+        real_map = Map(map_path, start_points[map_num - 1])
+        self.algo1 = AutoAlgo1(real_map)
+
+        painter_cpu = CPU(200, "painter")  # 60 FPS painter
+        # painter_cpu.add_function(lambda delta_time: self.screen.fill((255, 255, 255)))
+        painter_cpu.add_function(lambda delta_time: self.algo1.paint(self.screen))
+        painter_cpu.add_function(lambda delta_time: pygame.display.flip())
+        painter_cpu.play()
+
+        self.algo1.play()
+
+        updates_cpu = CPU(60, "updates")
+        updates_cpu.add_function(lambda delta_time: self.algo1.drone.update(delta_time))
+        updates_cpu.play()
+
+        info_cpu = CPU(6, "update_info")
+        info_cpu.add_function(self.update_info)
+        info_cpu.play()
+
+        while self.running:
+            for event in pygame.event.get():
+                for button in self.buttons:
+                    button.handle_event(event)
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+            self.clock.tick(60)
 
 
 if __name__ == "__main__":
-    main()
+    window = SimulationWindow()
+    pygame.quit()

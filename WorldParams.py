@@ -1,10 +1,11 @@
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-PLAYER_MAX_SPEED = 0.5  # meters per second, reduced speed
-PLAYER_ACCELERATION = 0.2  # meters per second^2, reduced acceleration
-ANGULAR_SPEED = 100  # degrees per second
-MAX_ANGLE = 10  # degrees
-FLIGHT_TIME = 480  # seconds
-SAFE_DISTANCE = 20  # Distance from the black area
-BUTTON_WIDTH = 100
-BUTTON_HEIGHT = 50
+class WorldParams:
+    lidar_limit = 300  # in cm
+    lidar_noise = 1  # in cm
+    CMPerPixel = 5
+    accelerate_per_second = 1.0  # 1 meter per second
+    max_speed = 0.5  # 0.5 meter per second
+    rotation_per_second = 60.0  # whole round per second
+    min_motion_accuracy = 0  # 2
+    max_motion_accuracy = 1  # 5
+    min_rotation_accuracy = 0  # 2
+    max_rotation_accuracy = 1  # 5

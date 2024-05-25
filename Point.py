@@ -1,9 +1,14 @@
-import math
+from decimal import Decimal
+
 
 class Point:
-    def __init__(self, x, y):
+    def __init__(self, x=0.0, y=0.0):
         self.x = x
         self.y = y
 
-    def distance_to(self, other):
-        return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
+    @classmethod
+    def from_point(cls, p):
+        return cls(p.x, p.y)
+
+    def __repr__(self):
+        return f"({Decimal(self.x):.3f},{Decimal(self.y):.3f})"
