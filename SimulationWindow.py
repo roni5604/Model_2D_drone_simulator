@@ -45,7 +45,7 @@ class SimulationWindow:
 
     def initialize(self):
         self.buttons = [
-            Button("Start/Pause", 1500, 600, 170, 50, self.toggle_cpu),
+            Button("Start/Pause", 1450, 600, 120, 50, self.toggle_cpu),
             Button("speedUp", 1400, 100, 100, 50, self.speed_up),
             Button("speedDown", 1550, 100, 150, 50, self.speed_down),
             Button("spin180", 1400, 200, 100, 50, lambda: self.spin_by(180)),
@@ -59,7 +59,8 @@ class SimulationWindow:
             Button("toggle Map", 1400, 400, 150, 50, self.toggle_real_map),
             Button("toggle AI", 1600, 400, 150, 50, self.toggle_ai),
             Button("Return Home", 1400, 500, 120, 50, self.return_home_func),
-            Button("Open Graph", 1600, 500, 120, 50, self.open_graph),
+            Button("Open Graph", 1600, 500, 150, 50, self.open_graph),
+            Button("Snack Driver", 1620, 600, 150, 50, self.toggle_snackDriver)
         ]
 
         self.info_label2_rect = pygame.Rect(1450, 0, 300, 80)
@@ -96,6 +97,10 @@ class SimulationWindow:
 
     def open_graph(self):
         self.algo1.m_graph.draw_graph(self.screen)
+
+    def toggle_snackDriver(self):
+        self.algo1.toggle_snackDriver = not self.algo1.toggle_snackDriver
+
 
     def update_info(self, delta_time):
         font = pygame.font.Font(None, 24)

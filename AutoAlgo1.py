@@ -59,6 +59,7 @@ class AutoAlgo1:
         self.toogle_ai = False
         self.return_home = False
         self.last_gyro_rotation = 0
+        self.toggle_snackDriver = False
 
     def play(self):
         self.drone.play()
@@ -304,3 +305,76 @@ class AutoAlgo1:
 
         direction = 1 if degrees_left_to_rotate > 0 else -1
         self.drone.rotate_left(delta_time * direction)
+
+############################################################################################
+# new function only thouch below  learn from ai function add snack movment insted his movment
+    def snake_driver(self, delta_time):
+        if not self.toggle_snackDriver:
+            return
+
+        if self.is_init:
+            self.speed_up()
+            drone_point = self.drone.get_optical_sensor_location()
+            self.init_point = Point(drone_point.x, drone_point.y)
+            self.points.append(drone_point)
+            self.m_graph.add_vertex(drone_point)
+            self.is_init = False
+
+        drone_point = self.drone.get_optical_sensor_location()
+
+        if self.return_home:
+            if Tools.get_distance_between_points(self.get_last_point(), drone_point) < self.max_distance_between_points:
+                if len(self.points) <= 1 and Tools.get_distance_between_points(self.get_last_point(),
+                                                                               drone_point) < self.max_distance_between_points / 5:
+                    self.speed_down()
+                else:
+                    self.remove_last_point()
+        else:
+            if Tools.get_distance_between_points(self.get_last_point(),
+                                                 drone_point) >= self.max_distance_between_points:
+                self.points.append(drone_point)
+                self.m_graph.add_vertex(drone_point)
+
+        if not self.is_risky:
+            lidar = self.drone.lidars[0]
+            if lidar.current_distance <= self.max_risky_distance:
+                self.is_risky = True
+                self.risky_dis = lidar.current_distance
+
+            lidar1 = self.drone.lidars[1]
+            if lidar1.current_distance <= self.max_risky_distance / 3:
+                self.is_risky = True
+
+            lidar2 = self.drone.lidars[2]
+            if lidar2.current_distance <= self.max_risky_distance / 3:
+                self.is_risky = True
+
+        else:
+            if not self.try_to_escape:
+                self.try_to_escape = True
+                self.perform_snake_movement()
+
+    def perform_snake_movement(self):
+        zigzag_angle = 30
+        zigzag_distance = 50
+        left_or_right = 1
+
+        if self.return_home:
+            zigzag_angle *= -1
+
+        self.spin_by(zigzag_angle * left_or_right)
+        left_or_right *= -1
+
+        self.move_forward(zigzag_distance)
+
+        self.spin_by(zigzag_angle * left_or_right)
+        left_or_right *= -1
+
+        self.move_forward(zigzag_distance)
+
+        self.reset_risk()
+
+    def move_forward(self, distance):
+        curr_position = self.drone.get_optical_sensor_location()
+        new_position = Tools.get_point_by_distance(curr_position, self.drone.get_gyro_rotation(), distance)
+        self.drone.set_position(new_position)
