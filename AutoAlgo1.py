@@ -69,6 +69,7 @@ class AutoAlgo1:
         self.update_visited()
         self.update_map_by_lidars()
         self.ai(delta_time)
+        self.snake_driver(delta_time)
 
         if self.is_rotating != 0:
             self.update_rotating(delta_time)
@@ -329,11 +330,11 @@ class AutoAlgo1:
                     self.speed_down()
                 else:
                     self.remove_last_point()
-        else:
-            if Tools.get_distance_between_points(self.get_last_point(),
-                                                 drone_point) >= self.max_distance_between_points:
-                self.points.append(drone_point)
-                self.m_graph.add_vertex(drone_point)
+            else:
+                if Tools.get_distance_between_points(self.get_last_point(),
+                                                     drone_point) >= self.max_distance_between_points:
+                    self.points.append(drone_point)
+                    self.m_graph.add_vertex(drone_point)
 
         if not self.is_risky:
             lidar = self.drone.lidars[0]
@@ -349,14 +350,56 @@ class AutoAlgo1:
             if lidar2.current_distance <= self.max_risky_distance / 3:
                 self.is_risky = True
 
+            if not self.is_risky:
+                self.perform_snake_movement(delta_time)
+
         else:
             if not self.try_to_escape:
                 self.try_to_escape = True
-                self.perform_snake_movement()
+                lidar1 = self.drone.lidars[1]
+                a = lidar1.current_distance
 
-    def perform_snake_movement(self):
-        zigzag_angle = 30
-        zigzag_distance = 50
+                lidar2 = self.drone.lidars[2]
+                b = lidar2.current_distance
+
+                spin_by = self.max_angle_risky
+
+                if a > 270 and b > 270:
+                    self.is_lidars_max = True
+                    l1 = Tools.get_point_by_distance(drone_point, lidar1.degrees + self.drone.get_gyro_rotation(),
+                                                     lidar1.current_distance)
+                    l2 = Tools.get_point_by_distance(drone_point, lidar2.degrees + self.drone.get_gyro_rotation(),
+                                                     lidar2.current_distance)
+                    last_point = self.get_avg_last_point()
+                    dis_to_lidar1 = Tools.get_distance_between_points(last_point, l1)
+                    dis_to_lidar2 = Tools.get_distance_between_points(last_point, l2)
+
+                    if self.return_home:
+                        if Tools.get_distance_between_points(self.get_last_point(),
+                                                             drone_point) < self.max_distance_between_points:
+                            self.remove_last_point()
+                    else:
+                        if Tools.get_distance_between_points(self.get_last_point(),
+                                                             drone_point) >= self.max_distance_between_points:
+                            self.points.append(drone_point)
+                            self.m_graph.add_vertex(drone_point)
+
+                    spin_by = 90
+                    if self.return_home:
+                        spin_by *= -1
+
+                    if dis_to_lidar1 < dis_to_lidar2:
+                        spin_by *= -1
+
+                else:
+                    if a < b:
+                        spin_by *= -1
+
+                self.spin_by2(spin_by, True, lambda: self.reset_risk())
+
+    def perform_snake_movement(self, delta_time):
+        zigzag_angle = 10
+        zigzag_distance = 10
         left_or_right = 1
 
         if self.return_home:
@@ -365,16 +408,13 @@ class AutoAlgo1:
         self.spin_by(zigzag_angle * left_or_right)
         left_or_right *= -1
 
-        self.move_forward(zigzag_distance)
+        self.move_forward(delta_time, zigzag_distance)
 
         self.spin_by(zigzag_angle * left_or_right)
         left_or_right *= -1
 
-        self.move_forward(zigzag_distance)
+        self.move_forward(delta_time, zigzag_distance)
 
-        self.reset_risk()
-
-    def move_forward(self, distance):
-        curr_position = self.drone.get_optical_sensor_location()
-        new_position = Tools.get_point_by_distance(curr_position, self.drone.get_gyro_rotation(), distance)
-        self.drone.set_position(new_position)
+    def move_forward(self, delta_time, distance):
+        self.drone.speed_up(delta_time)
+############################################################################################
