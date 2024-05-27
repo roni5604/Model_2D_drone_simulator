@@ -133,21 +133,6 @@ python SimulationWindow.py
   - `ai_cpu`: Instance of the `CPU` class managing the AI updates.
   - Various flags and parameters to manage the drone's behavior.
 
-- **Methods**:
-  - `play()`: Starts the drone and AI.
-  - `update(delta_time)`: Updates the drone's state and AI logic.
-  - `speed_up()`: Increases the drone's speed.
-  - `speed_down()`: Decreases the drone's speed.
-  - `update_map_by_lidars()`: Updates the map based on Lidar sensor data.
-  - `update_visited()`: Marks the current position as visited.
-  - `set_pixel(x, y, state)`: Sets the state of a pixel on the map.
-  - `paint_blind_map(screen)`: Draws the explored map.
-  - `paint_points(screen)`: Draws the path points.
-  - `paint(screen)`: Draws the drone and its environment.
-  - `ai(delta_time)`: Main AI logic for autonomous navigation.
-  - `spin_by(degrees)`, `spin_by2(degrees, is_first, func)`: Handles drone rotation.
-  - `update_rotating(delta_time)`: Updates the drone's rotation state.
-
 ### CPU
 
 `CPU` manages the timing and execution of various functions.
@@ -158,16 +143,6 @@ python SimulationWindow.py
   - `is_play`: Flag indicating whether the CPU is running.
   - `elapsed_milli`: Elapsed time in milliseconds.
   - `thread`: Thread running the CPU loop.
-
-- **Methods**:
-  - `stop_all_cpus()`, `resume_all_cpus()`: Static methods to stop or resume all CPUs.
-  - `resume()`: Resumes the CPU.
-  - `add_function(func)`: Adds a function to the execution list.
-  - `play()`: Starts the CPU.
-  - `stop()`: Stops the CPU.
-  - `reset_clock()`: Resets the elapsed time.
-  - `thread_run()`: Main loop for executing functions.
-
 ### Drone
 
 `Drone` represents the drone and its functionalities.
@@ -290,6 +265,52 @@ def main(self):
 Each of these methods plays a crucial role in the functionality and user interaction within the simulation window, ensuring a seamless and interactive experience.
 
 ## Additional Information
+### Explanation of Key Methods: toggle_snakeDriver() vs. toggle_ai()
+
+The `SimulationWindow.py` file contains various methods that manage the drone's behavior and user interaction within the simulation. Two important methods among these are `toggle_snakeDriver()` and `toggle_ai()`. While both methods modify the drone's mode of operation, they serve distinct purposes and function differently.
+
+#### toggle_snakeDriver()
+
+The `toggle_snakeDriver()` method is used to switch the drone's movement mode to or from "snake driver" mode. In this mode, the drone moves in a serpentine pattern, which can be particularly useful for systematic area coverage, such as in search and rescue operations or agricultural field monitoring.
+
+**Functionality:**
+- When activated, the drone's movement pattern changes to a back-and-forth or serpentine motion.
+- This mode ensures that the drone covers the entire area in a systematic way, making it ideal for tasks that require comprehensive area scanning.
+- Toggling this mode off returns the drone to its default movement behavior.
+
+**Code Example:**
+```python
+def toggle_snakeDriver(self):
+    self.drone.toggle_snake_mode()
+```
+
+**Detailed Explanation:**
+- **toggle_snake_mode()**: A method in the `Drone` class that switches the drone's movement pattern to a snake-like motion. This is beneficial for thorough area coverage.
+
+#### toggle_ai()
+
+The `toggle_ai()` method, on the other hand, toggles the autonomous control mode of the drone. In this mode, the drone uses its onboard algorithms and sensor data to navigate the environment independently, making decisions in real-time to avoid obstacles and complete its mission.
+
+**Functionality:**
+- Activates or deactivates the drone's autonomous navigation and control algorithms.
+- When enabled, the drone utilizes its sensors (like Lidar, IMU) and the main algorithm in `AutoAlgo1.py` to navigate and perform tasks without human intervention.
+- Toggling this mode off places the drone back under manual control or into a different predefined mode.
+
+**Code Example:**
+```python
+def toggle_ai(self):
+    self.auto_algo.toggle_autonomous_mode()
+```
+
+**Detailed Explanation:**
+- **toggle_autonomous_mode()**: A method in the `AutoAlgo1` class that activates or deactivates the autonomous control logic. This mode allows the drone to operate independently, making real-time decisions based on sensor inputs and pre-defined algorithms.
+
+### Summary
+
+- **toggle_snakeDriver()**: This method changes the drone's movement to a snake-like pattern for systematic area coverage. It is particularly useful for tasks requiring thorough scanning of a designated area.
+- **toggle_ai()**: This method switches the drone to autonomous mode, enabling it to navigate and complete tasks using onboard algorithms and sensor data. It allows the drone to operate independently, making real-time decisions.
+
+By understanding the distinct purposes and functionalities of these methods, users can better control the drone's behavior to suit various operational needs within the simulation.
 
 ### References
 
