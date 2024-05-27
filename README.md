@@ -203,14 +203,103 @@ python SimulationWindow.py
   - `buttons`: List of UI buttons.
   - `algo1`: Instance of the `AutoAlgo1` class.
 
-- **Methods**:
-  - `initialize()`: Initializes the
+- **Methods of SimulationWindow.py**:
 
- simulation window.
-  - `toggle_cpu()`, `speed_up()`, `speed_down()`, `spin_by(degrees)`: Button actions.
-  - `toggle_real_map()`, `toggle_ai()`, `return_home_func()`, `open_graph()`, `toggle_snackDriver()`: Additional button actions.
-  - `update_info(delta_time)`: Updates the information labels.
-  - `main()`: Main loop for running the simulation.
+Initializes the simulation window, setting up the main interface components and preparing the environment for the simulation to run.
+```
+def initialize(self):
+    # Initialize Pygame
+    pygame.init()
+    # Set up the screen
+    self.screen = pygame.display.set_mode((self.width, self.height))
+    pygame.display.set_caption('Drone Simulator')
+    # Set up the clock
+    self.clock = pygame.time.Clock()
+    # Initialize additional components like buttons and labels
+    self.setup_buttons()
+```
+toggle_cpu(): Toggles the CPU state, starting or stopping the CPU timer based on its current state.
+```
+def toggle_cpu(self):
+    if self.cpu.is_running():
+        self.cpu.stop()
+    else:
+        self.cpu.start()
+```
+speed_up(): Increases the speed of the drone.
+
+```
+def speed_up(self):
+    self.drone.increase_speed()
+```
+speed_down(): Decreases the speed of the drone.
+```
+def speed_down(self):
+    self.drone.decrease_speed()
+```
+spin_by(degrees): Rotates the drone by a specified number of degrees.
+```
+def spin_by(self, degrees):
+    self.drone.rotate(degrees)
+```
+Additional Button Actions
+toggle_real_map(): Toggles the display of the real map view in the simulation.
+```
+def toggle_real_map(self):
+    self.show_real_map = not self.show_real_map
+```
+
+toggle_ai(): Toggles the autonomous control of the drone.
+```
+def toggle_ai(self):
+    self.auto_algo.toggle_autonomous_mode()
+```
+
+return_home_func(): Commands the drone to return to its starting point.
+```
+def return_home_func(self):
+    self.drone.return_to_home()
+```
+open_graph(): Visualizes the path taken by the drone by displaying the exploration graph.
+```
+def open_graph(self):
+    self.graph.display()
+```
+toggle_snakeDriver(): Toggles the snake driver movement mode for the drone, which changes how the drone navigates.
+
+```
+def toggle_snakeDriver(self):
+    self.drone.toggle_snake_mode()
+update_info(delta_time)
+```
+
+Updates the information labels displayed on the screen, such as drone status and sensor data.
+```
+def update_info(self, delta_time):
+    self.info_label.update(delta_time)
+```
+main()
+The main loop for running the simulation. Handles events, updates the state of the simulation, and renders the components on the screen.
+```
+def main(self):
+    self.initialize()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            # Handle other events like button presses
+        self.update_info(self.clock.get_time())
+        self.screen.fill((255, 255, 255))  # Clear screen with white background
+        self.auto_algo.update(self.clock.get_time())  # Update the algorithm
+        self.drone.update(self.clock.get_time())  # Update the drone
+        self.graph.update(self.clock.get_time())  # Update the graph
+        pygame.display.flip()  # Refresh the display
+        self.clock.tick(60)  # Maintain 60 FPS
+    pygame.quit()
+```
+
+Each of these methods plays a crucial role in the functionality and user interaction within the simulation window, ensuring a seamless and interactive experience.
 
 ## Additional Information
 
