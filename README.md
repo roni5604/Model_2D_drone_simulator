@@ -5,8 +5,6 @@
 
 ## Project Overview
 
-**Autonomous robots - task 1 (version V0.0 2024)**
-
 In this project, we delve into the world of control and management of autonomous drones. The project is divided into two main parts:
 
 1. **Platform Search and Sensor Modeling**: 
@@ -18,8 +16,12 @@ In this project, we delve into the world of control and management of autonomous
    - Ensure the drone returns to the take-off point when the battery reaches 50%.
 
 ### Background
+- Before starting, please read the [following article](https://docs.google.com/document/d/1eo34T_M7jfduRZm_oevy94YY2LkGLzRT/edit#heading=h.pbpc1ivctwps).
 
-Before starting, please read the [following article](https://docs.google.com/document/d/1eo34T_M7jfduRZm_oevy94YY2LkGLzRT/edit#heading=h.pbpc1ivctwps), which was written by three undergraduate students. The article deals with the modeling of a tiny drone (Tello) with added sensors and a mission computer. The following videos describe the drone's autonomous flight in simulation and in real conditions:
+
+Autonomous drones are increasingly becoming an integral part of various industries due to their ability to perform tasks without human intervention. These drones are used in fields such as agriculture for crop monitoring, delivery services for transporting goods, surveillance for security purposes, and environmental monitoring for data collection in hard-to-reach areas. The development of autonomous drones involves complex algorithms and precise sensor integration to ensure they can navigate and perform tasks efficiently in dynamic environments.
+
+This project focuses on simulating the behavior of an autonomous drone in a 2D environment. It draws inspiration from a comprehensive study detailed in this article, authored by three undergraduate students. The article discusses the modeling of a Tello drone equipped with additional sensors and a mission computer. The sensors provide critical data for the drone's navigation and task execution, enabling it to operate autonomously both in simulation and real-world conditions. The following videos describe the drone's autonomous flight in simulation and in real conditions:
 
 ## Getting Started
 
@@ -35,18 +37,30 @@ pip install pygame
 
 ### Project Structure
 
-- **Maps/**: Contains the map images (`p12.png`, `p13.png`, `p14.png`, `p15.png`).
-- **AutoAlgo1.py**: Contains the main algorithm for autonomous drone control.
-- **CPU.py**: Manages the timing and execution of different functions.
-- **Drone.py**: Represents the drone and its functionalities.
-- **Graph.py**: Manages and visualizes the graph structure.
-- **Lidar.py**: Simulates the Lidar sensors on the drone.
-- **Map.py**: Handles the map and collision detection.
-- **Painter.py**: Responsible for drawing components on the screen.
-- **Point.py**: Represents a point in 2D space.
-- **SimulationWindow.py**: The main simulation window and user interface.
-- **Tools.py**: Utility functions for mathematical calculations.
-- **WorldParams.py**: Contains the world parameters and constants.
+### Explanation of the Simplified Project Structure Dependencies
+
+
+
+![אבד](https://github.com/roni5604/Model_2D_drone_simulator/assets/98646866/2217ec9d-87f0-4f50-823f-f54da5107187)
+
+
+
+
+
+The diagram illustrates the key dependencies between the main components of the Autonomous Drone Simulator project. Each node represents a crucial file in the project, and the arrows indicate the dependencies between them.
+
+- **SimulationWindow.py**: This is the main simulation window and user interface. It orchestrates the overall simulation, integrating various components.
+  - **Depends on**:
+    - **AutoAlgo1.py**: The main algorithm for autonomous drone control. It contains the logic for navigating the drone autonomously.
+    - **Drone.py**: This file represents the drone's functionalities, including its sensors and movement capabilities.
+    - **CPU.py**: Manages the timing and execution of different functions, ensuring that the simulation runs smoothly.
+- **AutoAlgo1.py**:
+  - **Depends on**:
+    - **CPU.py**: Utilized for managing the timing and execution of the drone's control algorithms.
+    - **Drone.py**: Interacts with the drone's functionalities to execute control commands.
+    - **Lidar.py**: Simulates the Lidar sensors on the drone, providing distance measurements crucial for navigation and obstacle avoidance.
+
+This simplified diagram highlights the essential interactions and dependencies necessary for the drone's autonomous control and simulation environment, providing a clear view of the project's core structure.
 
 ### Running the Simulation
 
