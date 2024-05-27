@@ -180,18 +180,6 @@ python SimulationWindow.py
   - `cpu`: Instance of the `CPU` class managing the drone updates.
   - `drone_img_path`, `mImage`: Path and image of the drone.
 
-- **Methods**:
-  - `play()`, `stop()`: Start and stop the drone.
-  - `add_lidar(degrees)`: Adds a Lidar sensor.
-  - `get_point_on_map()`: Gets the current position of the drone on the map.
-  - `update(delta_time)`: Updates the drone's state.
-  - `format_rotation(rotation_value)`: Formats the rotation value.
-  - `get_rotation()`, `get_gyro_rotation()`: Gets the current rotation values.
-  - `get_optical_sensor_location()`: Gets the optical sensor's position.
-  - `rotate_left(delta_time)`, `rotate_right(delta_time)`: Rotates the drone.
-  - `speed_up(delta_time)`, `slow_down(delta_time)`: Adjusts the drone's speed.
-  - `paint(screen)`: Draws the drone on the screen.
-
 ### SimulationWindow
 
 `SimulationWindow` is the main simulation window and user interface.
