@@ -305,6 +305,58 @@ def toggle_ai(self):
 **Detailed Explanation:**
 - **toggle_autonomous_mode()**: A method in the `AutoAlgo1` class that activates or deactivates the autonomous control logic. This mode allows the drone to operate independently, making real-time decisions based on sensor inputs and pre-defined algorithms.
 
+
+- ***8-Minute Flight Time***
+The drone in our project is designed to have a maximum flight time of 8 minutes (480 seconds). This feature is crucial for ensuring the drone returns to its take-off point when the battery reaches 50%, ensuring it does not remain airborne without enough power to return safely. In this project, we implement battery monitoring and ensure the drone initiates a return to the take-off point when the battery reaches 50%.
+
+Use of Files in the Project
+Several files are utilized in this project to implement the simulation and autonomous behavior of the drone:
+
+CPU.py:
+
+Purpose: Manages the timing and execution of various functions in the simulation.
+Explanation: This file defines functions such as play, stop, and resume, allowing control over the simulation's execution. It also includes a timing mechanism to ensure functions run at defined intervals based on the set frequency (Hz).
+Tools.py:
+
+Purpose: Provides utility functions for geometric and statistical calculations.
+Explanation: This file includes functions like get_point_by_distance to calculate a new point based on an existing point, angle, and distance, and noise_between to generate random noise within a specified range.
+Map.py:
+
+Purpose: Represents the map the drone operates within.
+Explanation: This file converts a map image into a boolean array and manages collisions on the map. The drone uses this information to navigate and avoid obstacles.
+Graph.py:
+
+Purpose: Represents the graph of nodes and edges created during the drone's flight.
+Explanation: This file includes functions to add vertices and edges to the graph and draw the graph on the screen to display the drone's path.
+Adding 8-Minute Flight Time
+python
+Copy code
+```
+class Drone:
+    def __init__(self, real_map, start_point, battery_life=480):
+        self.real_map = real_map
+        self.start_point = start_point
+        self.battery_life = battery_life  # Maximum flight time in seconds
+        self.battery = battery_life  # Current battery status
+        # continue with other initializations...
+
+    def update_battery(self, elapsed_time):
+        self.battery -= elapsed_time
+        if self.battery <= self.battery_life / 2:
+            self.return_to_home()
+
+    def return_to_home(self):
+        # Logic for returning to the take-off point
+        pass
+
+    def fly(self, delta_time):
+        self.update_battery(delta_time)
+        # additional flight logic...
+```
+In this section, the code in Drone.py manages the battery status and ensures the drone returns to the take-off point when the battery reaches 50%. We use the update_battery function to update the battery status in each simulation cycle.
+
+
+
 ### Summary
 
 - **toggle_snakeDriver()**: This method changes the drone's movement to a snake-like pattern for systematic area coverage. It is particularly useful for tasks requiring thorough scanning of a designated area.
