@@ -269,7 +269,7 @@ Each of these methods plays a crucial role in the functionality and user interac
 
 The `SimulationWindow.py` file contains various methods that manage the drone's behavior and user interaction within the simulation. Two important methods among these are `toggle_snakeDriver()` and `toggle_ai()`. While both methods modify the drone's mode of operation, they serve distinct purposes and function differently.
 
-#### toggle_snakeDriver()
+#### toggle_snakeDriver() ( our main method taht we Designed it )
 
 The `toggle_snakeDriver()` method is used to switch the drone's movement mode to or from "snake driver" mode. In this mode, the drone moves in a serpentine pattern, which can be particularly useful for systematic area coverage, such as in search and rescue operations or agricultural field monitoring.
 
