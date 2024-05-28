@@ -1,7 +1,7 @@
 
 ---
 
-# Autonomous Drone Simulator
+# Autonomous Drone 2D Simulator
 
 ## Project Overview
 
