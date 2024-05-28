@@ -45,22 +45,20 @@ class SimulationWindow:
 
     def initialize(self):
         self.buttons = [
-            Button("Start/Pause", 1450, 600, 120, 50, self.toggle_cpu),
-            Button("speedUp", 1400, 100, 100, 50, self.speed_up),
-            Button("speedDown", 1550, 100, 150, 50, self.speed_down),
-            Button("spin180", 1400, 200, 100, 50, lambda: self.spin_by(180)),
+            Button("Start/Pause", 1500, 600, 150, 50, self.toggle_cpu),
+            Button("speedUp", 1450, 100, 100, 50, self.speed_up),
+            Button("speedDown", 1600, 100, 150, 50, self.speed_down),
+            Button("spin180", 1420, 200, 100, 50, lambda: self.spin_by(180)),
             Button("spin90", 1550, 200, 100, 50, lambda: self.spin_by(90)),
             Button("spin60", 1700, 200, 100, 50, lambda: self.spin_by(60)),
-            Button("spin45", 1300, 300, 100, 50, lambda: self.spin_by(45)),
             Button("spin30", 1400, 300, 100, 50, lambda: self.spin_by(30)),
             Button("spin-30", 1500, 300, 100, 50, lambda: self.spin_by(-30)),
             Button("spin-45", 1600, 300, 100, 50, lambda: self.spin_by(-45)),
             Button("spin-60", 1700, 300, 100, 50, lambda: self.spin_by(-60)),
-            Button("toggle Map", 1400, 400, 150, 50, self.toggle_real_map),
-            Button("toggle AI", 1600, 400, 150, 50, self.toggle_ai),
-            Button("Return Home", 1400, 500, 120, 50, self.return_home_func),
-            Button("Open Graph", 1600, 500, 150, 50, self.open_graph),
-            Button("Snack Driver", 1620, 600, 150, 50, self.toggle_snackDriver)
+            Button("Snack Driver", 1450, 400, 150, 50, self.toggle_snackDriver),
+            Button("toggle AI", 1650, 400, 150, 50, self.toggle_ai),
+            Button("Return Home", 1450, 500, 150, 50, self.return_home_func),
+            Button("Open Graph", 1650, 500, 150, 50, self.open_graph)
         ]
 
         self.info_label2_rect = pygame.Rect(1450, 0, 300, 80)

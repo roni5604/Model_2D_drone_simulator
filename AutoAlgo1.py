@@ -1,6 +1,7 @@
 from enum import Enum
 
 import pygame
+import time
 
 from CPU import CPU
 from Drone import Drone
@@ -60,6 +61,8 @@ class AutoAlgo1:
         self.return_home = False
         self.last_gyro_rotation = 0
         self.toggle_snackDriver = False
+        self.start_time = time.time()
+
 
     def play(self):
         self.drone.play()
@@ -313,6 +316,12 @@ class AutoAlgo1:
         if not self.toggle_snackDriver:
             return
 
+        elapsed_time = time.time() - self.start_time
+        if elapsed_time > 480:
+            print("Maximum flight time reached. Ending flight.")
+            self.end_flight()
+            return
+
         if self.is_init:
             self.speed_up()
             drone_point = self.drone.get_optical_sensor_location()
@@ -417,4 +426,12 @@ class AutoAlgo1:
 
     def move_forward(self, delta_time, distance):
         self.drone.speed_up(delta_time)
+
+    def end_flight(self):
+        self.speed_down()
+        self.speed_down()
+        self.toggle_snackDriver = False
+        print("Flight ended.")
+        exit(0)
+
 ############################################################################################

@@ -95,6 +95,10 @@ class Drone:
         if self.speed < 0:
             self.speed = 0
 
+    def stop_flight(self):
+        self.speed = 0
+
+
     def paint(self, screen):
         if not self.mImage:
             self.mImage = pygame.image.load(self.drone_img_path)
