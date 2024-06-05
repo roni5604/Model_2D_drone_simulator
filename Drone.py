@@ -19,17 +19,20 @@ class Drone:
         self.rotation = 0
         self.gyro_rotation = self.rotation
 
-        self.cpu = CPU(100, "Drone")
+        self.cpu = CPU(100, "Drone")  # 10Hz CPU
         self.drone_img_path = "Maps/drone_3_pixels.png"
         self.mImage = None
 
     def play(self):
+        """Start the drone's CPU."""
         self.cpu.play()
 
     def stop(self):
+        """Stop the drone's CPU."""
         self.cpu.stop()
 
     def add_lidar(self, degrees):
+        """Add a lidar sensor to the drone at a specified degree."""
         lidar = Lidar(self, degrees)
         self.lidars.append(lidar)
         self.cpu.add_function(lambda x: lidar.get_simulation_distance(x))
@@ -86,11 +89,13 @@ class Drone:
         self.gyro_rotation = self.format_rotation(self.gyro_rotation)
 
     def speed_up(self, delta_time):
+        """Increase the drone's speed based on elapsed time."""
         self.speed += (WorldParams.accelerate_per_second * delta_time / 1000.0)
         if self.speed > WorldParams.max_speed:
             self.speed = WorldParams.max_speed
 
     def slow_down(self, delta_time):
+        """Decrease the drone's speed based on elapsed time."""
         self.speed -= (WorldParams.accelerate_per_second * delta_time / 1000.0)
         if self.speed < 0:
             self.speed = 0
@@ -100,6 +105,7 @@ class Drone:
 
 
     def paint(self, screen):
+        """Draw the drone on the given screen."""
         if not self.mImage:
             self.mImage = pygame.image.load(self.drone_img_path)
 

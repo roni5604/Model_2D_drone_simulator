@@ -31,7 +31,7 @@ class AutoAlgo1:
         self.degrees_left_func = []
         self.is_speed_up = False
         self.m_graph = Graph()
-        self.ai_cpu = CPU(200, "Auto_AI")
+        self.ai_cpu = CPU(200, "Auto_AI") # 10Hz CPU
         self.ai_cpu.add_function(self.update)
         self.drone_starting_point = Point(self.map_size // 2, self.map_size // 2)
         self.is_init = True
@@ -63,10 +63,12 @@ class AutoAlgo1:
         self.toggle_keep_right_driver = False
 
     def play(self):
+        """Start the AI CPU and the drone."""
         self.drone.play()
         self.ai_cpu.play()
 
     def update(self, delta_time):
+        """Update the state of the drone and AI."""
         self.update_visited()
         self.update_map_by_lidars()
         self.ai(delta_time)
@@ -101,11 +103,13 @@ class AutoAlgo1:
                 self.set_pixel(p.x, p.y, PixelState.BLOCKED)
 
     def update_visited(self):
+        """Mark the current drone position as visited on the map."""
         drone_point = self.drone.get_optical_sensor_location()
         from_point = Point(drone_point.x + self.drone_starting_point.x, drone_point.y + self.drone_starting_point.y)
         self.set_pixel(from_point.x, from_point.y, PixelState.VISITED)
 
     def set_pixel(self, x, y, state):
+        """Set the state of a specific pixel on the map."""
         xi = int(x)
         yi = int(y)
         if state == PixelState.VISITED:
@@ -115,6 +119,7 @@ class AutoAlgo1:
             self.map[xi][yi] = state
 
     def paint_blind_map(self, screen):
+        """Draw the blind map on the screen."""
         for i in range(self.map_size):
             for j in range(self.map_size):
                 if self.map[i][j] != PixelState.UNEXPLORED:
@@ -141,6 +146,7 @@ class AutoAlgo1:
         self.drone.paint(screen)
 
     def ai(self, delta_time):
+        """Artificial Intelligence algorithm for navigating the drone."""
         if not self.toogle_ai:
             return
 
@@ -277,6 +283,7 @@ class AutoAlgo1:
         self.is_rotating = 1
 
     def update_rotating(self, delta_time):
+        """Update the rotation of the drone."""
         if not self.degrees_left:
             return
 
@@ -310,7 +317,6 @@ class AutoAlgo1:
         self.drone.rotate_left(delta_time * direction)
 
 ############################################################################################
-# new function only thouch below  learn from ai function add snack movment insted his movment
     def snake_driver(self, delta_time):
         if not self.toggle_snackDriver:
             return
