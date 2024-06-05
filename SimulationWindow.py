@@ -58,7 +58,7 @@ class SimulationWindow:
             Button("Snack Driver", 1450, 400, 150, 50, self.toggle_snackDriver),
             Button("toggle AI", 1650, 400, 150, 50, self.toggle_ai),
             Button("Return Home", 1450, 500, 150, 50, self.return_home_func),
-            Button("Open Graph", 1650, 500, 150, 50, self.open_graph)
+            Button("Keep Left", 1650, 500, 150, 50, self.toggle_keep_right_driver)
         ]
 
         self.info_label2_rect = pygame.Rect(1450, 0, 300, 80)
@@ -95,6 +95,10 @@ class SimulationWindow:
 
     def open_graph(self):
         self.algo1.m_graph.draw_graph(self.screen)
+
+
+    def toggle_keep_right_driver(self):
+        self.algo1.toggle_keep_right_driver = not self.algo1.toggle_keep_right_driver
 
     def toggle_snackDriver(self):
         self.algo1.toggle_snackDriver = not self.algo1.toggle_snackDriver
