@@ -1,6 +1,4 @@
 
----
-
 # Autonomous Drone 2D Simulator
 
 ## Project Overview
@@ -17,7 +15,6 @@ In this project, we delve into the world of control and management of autonomous
 
 ### Background
 - Before starting, please read the [following article](https://docs.google.com/document/d/1eo34T_M7jfduRZm_oevy94YY2LkGLzRT/edit#heading=h.pbpc1ivctwps).
-
 
 Autonomous drones are increasingly becoming an integral part of various industries due to their ability to perform tasks without human intervention. These drones are used in fields such as agriculture for crop monitoring, delivery services for transporting goods, surveillance for security purposes, and environmental monitoring for data collection in hard-to-reach areas. The development of autonomous drones involves complex algorithms and precise sensor integration to ensure they can navigate and perform tasks efficiently in dynamic environments.
 
@@ -39,13 +36,7 @@ pip install pygame
 
 ### Explanation of the Simplified Project Structure Dependencies
 
-
-
 ![אבד](https://github.com/roni5604/Model_2D_drone_simulator/assets/98646866/2217ec9d-87f0-4f50-823f-f54da5107187)
-
-
-
-
 
 The diagram illustrates the key dependencies between the main components of the Autonomous Drone Simulator project. Each node represents a crucial file in the project, and the arrows indicate the dependencies between them.
 
@@ -87,6 +78,7 @@ python SimulationWindow.py
 - **Return Home**: Commands the drone to return to the starting point.
 - **Open Graph**: Visualizes the path taken by the drone.
 - **Snake Driver**: Toggles the snake driver movement mode.
+- **Keep Right Driver**: Toggles the keep right driver movement mode.
 
 ## Drone Specifications
 
@@ -143,6 +135,7 @@ python SimulationWindow.py
   - `is_play`: Flag indicating whether the CPU is running.
   - `elapsed_milli`: Elapsed time in milliseconds.
   - `thread`: Thread running the CPU loop.
+
 ### Drone
 
 `Drone` represents the drone and its functionalities.
@@ -190,7 +183,6 @@ def toggle_cpu(self):
         self.cpu.start()
 ```
 speed_up(): Increases the speed of the drone.
-
 ```
 def speed_up(self):
     self.drone.increase_speed()
@@ -208,16 +200,16 @@ def spin_by(self, degrees):
 Additional Button Actions
 toggle_real_map(): Toggles the display of the real map view in the simulation.
 ```
-def toggle_real_map(self):
+def
+
+ toggle_real_map(self):
     self.show_real_map = not self.show_real_map
 ```
-
 toggle_ai(): Toggles the autonomous control of the drone.
 ```
 def toggle_ai(self):
     self.auto_algo.toggle_autonomous_mode()
 ```
-
 return_home_func(): Commands the drone to return to its starting point.
 ```
 def return_home_func(self):
@@ -229,20 +221,21 @@ def open_graph(self):
     self.graph.display()
 ```
 toggle_snakeDriver(): Toggles the snake driver movement mode for the drone, which changes how the drone navigates.
-
 ```
 def toggle_snakeDriver(self):
     self.drone.toggle_snake_mode()
-update_info(delta_time)
 ```
-
-Updates the information labels displayed on the screen, such as drone status and sensor data.
+toggle_keep_right_driver(): Toggles the keep right driver movement mode for the drone, which changes how the drone navigates.
+```
+def toggle_keep_right_driver(self):
+    self.drone.toggle_keep_right_mode()
+```
+update_info(delta_time): Updates the information labels displayed on the screen, such as drone status and sensor data.
 ```
 def update_info(self, delta_time):
     self.info_label.update(delta_time)
 ```
-main()
-The main loop for running the simulation. Handles events, updates the state of the simulation, and renders the components on the screen.
+main(): The main loop for running the simulation. Handles events, updates the state of the simulation, and renders the components on the screen.
 ```
 def main(self):
     self.initialize()
@@ -261,15 +254,15 @@ def main(self):
         self.clock.tick(60)  # Maintain 60 FPS
     pygame.quit()
 ```
-
 Each of these methods plays a crucial role in the functionality and user interaction within the simulation window, ensuring a seamless and interactive experience.
 
 ## Additional Information
+
 ### Explanation of Key Methods: toggle_snakeDriver() vs. toggle_ai()
 
 The `SimulationWindow.py` file contains various methods that manage the drone's behavior and user interaction within the simulation. Two important methods among these are `toggle_snakeDriver()` and `toggle_ai()`. While both methods modify the drone's mode of operation, they serve distinct purposes and function differently.
 
-#### toggle_snakeDriver() ( our main method that we Designed it )
+#### toggle_snakeDriver()
 
 The `toggle_snakeDriver()` method is used to switch the drone's movement mode to or from "snake driver" mode. In this mode, the drone moves in a serpentine pattern, which can be particularly useful for systematic area coverage, such as in search and rescue operations or agricultural field monitoring.
 
@@ -283,7 +276,6 @@ The `toggle_snakeDriver()` method is used to switch the drone's movement mode to
 def toggle_snakeDriver(self):
     self.drone.toggle_snake_mode()
 ```
-
 **Detailed Explanation:**
 - **toggle_snake_mode()**: A method in the `Drone` class that switches the drone's movement pattern to a snake-like motion. This is beneficial for thorough area coverage.
 
@@ -301,37 +293,57 @@ The `toggle_ai()` method, on the other hand, toggles the autonomous control mode
 def toggle_ai(self):
     self.auto_algo.toggle_autonomous_mode()
 ```
-
 **Detailed Explanation:**
 - **toggle_autonomous_mode()**: A method in the `AutoAlgo1` class that activates or deactivates the autonomous control logic. This mode allows the drone to operate independently, making real-time decisions based on sensor inputs and pre-defined algorithms.
 
+#### toggle_keep_right_driver()
 
-- ***8-Minute Flight Time***
-The drone in our project is designed to have a maximum flight time of 8 minutes (480 seconds). This feature is crucial for ensuring the drone returns to its take-off point when the battery reaches 50%, ensuring it does not remain airborne without enough power to return safely. In this project, we implement battery monitoring and ensure the drone initiates a return to the take-off point when the battery reaches 50%.
+The `toggle_keep_right_driver()` method is used to switch the drone's movement mode to or from "keep right driver" mode. In this mode, the drone will aim to keep to the right side and only change its course when it encounters a risky area.
+
+**Functionality:**
+- When activated, the drone attempts to keep to the right side while navigating.
+- This mode ensures that the drone maintains a rightward path unless it encounters a risky area, at which point it maneuvers to avoid the risk.
+- Toggling this mode off returns the drone to its default movement behavior.
+
+**Code Example:**
+```python
+def toggle_keep_right_driver(self):
+    self.drone.toggle_keep_right_mode()
+```
+**Detailed Explanation:**
+- **toggle_keep_right_mode()**: A method in the `Drone` class that switches the drone's movement pattern to a rightward bias. This is beneficial for certain navigational strategies where keeping to one side is preferable.
+
+### 8-Minute Flight Time
+
+The drone in our project is designed to have a maximum flight time of 8 minutes (480 seconds). This feature is crucial for ensuring the drone returns to the take-off point when the battery reaches 50%, ensuring it does not remain airborne without enough power to return safely. In this project, we implement battery monitoring and ensure the drone initiates a return to the take-off point when the battery reaches 50%.
 
 Use of Files in the Project
+
 Several files are utilized in this project to implement the simulation and autonomous behavior of the drone:
 
-CPU.py:
+#### CPU.py
 
-Purpose: Manages the timing and execution of various functions in the simulation.
-Explanation: This file defines functions such as play, stop, and resume, allowing control over the simulation's execution. It also includes a timing mechanism to ensure functions run at defined intervals based on the set frequency (Hz).
-Tools.py:
+- **Purpose**: Manages the timing and execution of various functions in the simulation.
+- **Explanation**: This file defines functions such as play, stop, and resume, allowing control over the simulation's execution. It also includes a timing mechanism to ensure functions run at defined intervals based on the set frequency (Hz).
 
-Purpose: Provides utility functions for geometric and statistical calculations.
-Explanation: This file includes functions like get_point_by_distance to calculate a new point based on an existing point, angle, and distance, and noise_between to generate random noise within a specified range.
-Map.py:
+#### Tools.py
 
-Purpose: Represents the map the drone operates within.
-Explanation: This file converts a map image into a boolean array and manages collisions on the map. The drone uses this information to navigate and avoid obstacles.
-Graph.py:
+- **Purpose**: Provides utility functions for geometric and statistical calculations.
+- **Explanation**: This file includes functions like get_point_by_distance to calculate a new point based on an existing point, angle, and distance, and noise_between to generate random noise within a specified range.
 
-Purpose: Represents the graph of nodes and edges created during the drone's flight.
-Explanation: This file includes functions to add vertices and edges to the graph and draw the graph on the screen to display the drone's path.
-Adding 8-Minute Flight Time
-python
-Copy code
-```
+#### Map.py
+
+- **Purpose**: Represents the map the drone operates within.
+- **Explanation**: This file converts a map image into a boolean array and manages collisions on the map. The drone uses this information to navigate and avoid obstacles.
+
+#### Graph.py
+
+- **Purpose**: Represents the graph of nodes and edges created during the drone's flight.
+- **Explanation**: This file includes functions to add vertices and edges to the graph and draw the graph on the screen to display the drone's path.
+
+### Adding 8-Minute Flight Time
+
+```python
 class Drone:
     def __init__(self, real_map, start_point, battery_life=480):
         self.real_map = real_map
@@ -355,19 +367,16 @@ class Drone:
 ```
 In this section, the code in Drone.py manages the battery status and ensures the drone returns to the take-off point when the battery reaches 50%. We use the update_battery function to update the battery status in each simulation cycle.
 
-
-
 ### Summary
 
 - **toggle_snakeDriver()**: This method changes the drone's movement to a snake-like pattern for systematic area coverage. It is particularly useful for tasks requiring thorough scanning of a designated area.
 - **toggle_ai()**: This method switches the drone to autonomous mode, enabling it to navigate and complete tasks using onboard algorithms and sensor data. It allows the drone to operate independently, making real-time decisions.
+- **toggle_keep_right_driver()**: This method changes the drone's movement to keep right. It ensures the drone maintains a rightward path unless it encounters a risky area, at which point it maneuvers to avoid the risk.
 
 By understanding the distinct purposes and functionalities of these methods, users can better control the drone's behavior to suit various operational needs within the simulation.
 
 ### References
 
 - [Link to Article](https://docs.google.com/document/d/1eo34T_M7jfduRZm_oevy94YY2LkGLzRT/edit#heading=h.pbpc1ivctwps)
-- [link to base project](https://github.com/vection/DroneSimulator)
-
----
+- [Link to Base Project](https://github.com/vection/DroneSimulator)
 

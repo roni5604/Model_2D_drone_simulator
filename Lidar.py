@@ -3,7 +3,7 @@ import pygame
 
 import Tools
 import WorldParams
-import Drone  # Assuming you have a drone module
+import Drone
 
 
 class Lidar:
