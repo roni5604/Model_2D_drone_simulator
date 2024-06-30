@@ -58,7 +58,7 @@ class SimulationWindow:
             Button("Snack Driver", 1450, 400, 150, 50, self.toggle_snackDriver),
             Button("toggle AI", 1650, 400, 150, 50, self.toggle_ai),
             Button("Return Home", 1450, 500, 150, 50, self.return_home_func),
-            Button("Keep Left", 1650, 500, 150, 50, self.toggle_keep_right_driver)
+            Button("Keep Left", 1650, 500, 150, 50, self.toggle_stay_in_middle)
         ]
 
         self.info_label2_rect = pygame.Rect(1450, 0, 300, 80)
@@ -101,12 +101,15 @@ class SimulationWindow:
         self.algo1.toggle_keep_right_driver = not self.algo1.toggle_keep_right_driver
 
     def toggle_snackDriver(self):
+
         self.algo1.toggle_snackDriver = not self.algo1.toggle_snackDriver
 
+    def toggle_stay_in_middle(self):
+        self.algo1.toggle_keep_middle_driver = not self.algo1.toggle_keep_middle_driver
 
     def update_info(self, delta_time):
         font = pygame.font.Font(None, 24)
-        info_text2 = f"algo1.counter: {self.algo1.counter} isRisky: {self.algo1.is_risky}, risky_dis: {self.algo1.risky_dis}"
+        info_text2 = f"return home: {self.algo1.return_home} isRisky: {self.algo1.is_risky} "
         text_surf2 = font.render(info_text2, True, (0, 0, 0))
         pygame.draw.rect(self.screen, (255, 255, 255), self.info_label2_rect)
         self.screen.blit(text_surf2, self.info_label2_rect.topleft)

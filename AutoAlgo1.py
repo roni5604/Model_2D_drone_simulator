@@ -61,6 +61,7 @@ class AutoAlgo1:
         self.last_gyro_rotation = 0
         self.toggle_snackDriver = False
         self.toggle_keep_right_driver = False
+        self.toggle_keep_middle_driver = False
 
     def play(self):
         """Start the AI CPU and the drone."""
@@ -74,6 +75,7 @@ class AutoAlgo1:
         self.ai(delta_time)
         self.snake_driver(delta_time)
         self.keep_right_driver(delta_time)  # Add this line
+        self.stay_in_middle_driver(delta_time)  # Add this line
 
         if self.is_rotating != 0:
             self.update_rotating(delta_time)
@@ -177,6 +179,7 @@ class AutoAlgo1:
                 self.m_graph.add_vertex(drone_point)
 
         if not self.is_risky:
+
             lidar = self.drone.lidars[0]
             if lidar.current_distance <= self.max_risky_distance:
                 self.is_risky = True
@@ -191,6 +194,7 @@ class AutoAlgo1:
                 self.is_risky = True
 
         else:
+
             if not self.try_to_escape:
                 self.try_to_escape = True
                 lidar1 = self.drone.lidars[1]
@@ -332,78 +336,155 @@ class AutoAlgo1:
         drone_point = self.drone.get_optical_sensor_location()
 
         if self.return_home:
-            if Tools.get_distance_between_points(self.get_last_point(), drone_point) < self.max_distance_between_points:
-                if len(self.points) <= 1 and Tools.get_distance_between_points(self.get_last_point(),
-                                                                               drone_point) < self.max_distance_between_points / 5:
-                    self.speed_down()
-                else:
-                    self.remove_last_point()
-            else:
-                if Tools.get_distance_between_points(self.get_last_point(),
-                                                     drone_point) >= self.max_distance_between_points:
-                    self.points.append(drone_point)
-                    self.m_graph.add_vertex(drone_point)
-
-        if not self.is_risky:
-            lidar = self.drone.lidars[0]
-            if lidar.current_distance <= self.max_risky_distance:
-                self.is_risky = True
-                self.risky_dis = lidar.current_distance
-
-            lidar1 = self.drone.lidars[1]
-            if lidar1.current_distance <= self.max_risky_distance / 3:
-                self.is_risky = True
-
-            lidar2 = self.drone.lidars[2]
-            if lidar2.current_distance <= self.max_risky_distance / 3:
-                self.is_risky = True
+            self.perform_return_home(delta_time)
+        else:
+            if Tools.get_distance_between_points(self.get_last_point(),
+                                                 drone_point) >= self.max_distance_between_points:
+                self.points.append(drone_point)
+                self.m_graph.add_vertex(drone_point)
 
             if not self.is_risky:
-                self.perform_snake_movement(delta_time)
+                lidar = self.drone.lidars[0]
+                if lidar.current_distance <= self.max_risky_distance:
+                    self.is_risky = True
+                    self.risky_dis = lidar.current_distance
 
-        else:
-            if not self.try_to_escape:
-                self.try_to_escape = True
                 lidar1 = self.drone.lidars[1]
-                a = lidar1.current_distance
+                if lidar1.current_distance <= self.max_risky_distance / 3:
+                    self.is_risky = True
 
                 lidar2 = self.drone.lidars[2]
-                b = lidar2.current_distance
+                if lidar2.current_distance <= self.max_risky_distance / 3:
+                    self.is_risky = True
 
-                spin_by = self.max_angle_risky
+                if not self.is_risky:
+                    self.perform_snake_movement(delta_time)
 
-                if a > 270 and b > 270:
-                    self.is_lidars_max = True
-                    l1 = Tools.get_point_by_distance(drone_point, lidar1.degrees + self.drone.get_gyro_rotation(),
-                                                     lidar1.current_distance)
-                    l2 = Tools.get_point_by_distance(drone_point, lidar2.degrees + self.drone.get_gyro_rotation(),
-                                                     lidar2.current_distance)
-                    last_point = self.get_avg_last_point()
-                    dis_to_lidar1 = Tools.get_distance_between_points(last_point, l1)
-                    dis_to_lidar2 = Tools.get_distance_between_points(last_point, l2)
+            else:
+                if not self.try_to_escape:
+                    self.try_to_escape = True
+                    lidar1 = self.drone.lidars[1]
+                    a = lidar1.current_distance
 
-                    if self.return_home:
-                        if Tools.get_distance_between_points(self.get_last_point(),
-                                                             drone_point) < self.max_distance_between_points:
-                            self.remove_last_point()
+                    lidar2 = self.drone.lidars[2]
+                    b = lidar2.current_distance
+
+                    spin_by = self.max_angle_risky
+
+                    if a > 270 and b > 270:
+                        self.is_lidars_max = True
+                        l1 = Tools.get_point_by_distance(drone_point, lidar1.degrees + self.drone.get_gyro_rotation(),
+                                                         lidar1.current_distance)
+                        l2 = Tools.get_point_by_distance(drone_point, lidar2.degrees + self.drone.get_gyro_rotation(),
+                                                         lidar2.current_distance)
+                        last_point = self.get_avg_last_point()
+                        dis_to_lidar1 = Tools.get_distance_between_points(last_point, l1)
+                        dis_to_lidar2 = Tools.get_distance_between_points(last_point, l2)
+
+                        if self.return_home:
+                            if Tools.get_distance_between_points(self.get_last_point(),
+                                                                 drone_point) < self.max_distance_between_points:
+                                self.remove_last_point()
+                        else:
+                            if Tools.get_distance_between_points(self.get_last_point(),
+                                                                 drone_point) >= self.max_distance_between_points:
+                                self.points.append(drone_point)
+                                self.m_graph.add_vertex(drone_point)
+
+                        spin_by = 90
+                        if self.return_home:
+                            spin_by *= -1
+
+                        if dis_to_lidar1 < dis_to_lidar2:
+                            spin_by *= -1
+
                     else:
-                        if Tools.get_distance_between_points(self.get_last_point(),
-                                                             drone_point) >= self.max_distance_between_points:
-                            self.points.append(drone_point)
-                            self.m_graph.add_vertex(drone_point)
+                        if a < b:
+                            spin_by *= -1
 
-                    spin_by = 90
-                    if self.return_home:
-                        spin_by *= -1
+                    self.spin_by2(spin_by, True, lambda: self.reset_risk())
 
-                    if dis_to_lidar1 < dis_to_lidar2:
-                        spin_by *= -1
+    def perform_return_home(self, delta_time):
+        """Handles the drone's return to home functionality."""
+        if not self.points:
+            self.drone.stop()
+            return
 
+        drone_point = self.drone.get_optical_sensor_location()
+        last_point = self.get_last_point()
+
+        if Tools.get_distance_between_points(last_point, drone_point) < 0.5:
+            self.remove_last_point()
+            if not self.points:
+                self.drone.stop()
+        else:
+            if not self.is_risky:
+                lidar = self.drone.lidars[0]
+                if lidar.current_distance <= self.max_risky_distance:
+                    self.is_risky = True
+                    self.risky_dis = lidar.current_distance
+
+                lidar1 = self.drone.lidars[1]
+                if lidar1.current_distance <= self.max_risky_distance / 3:
+                    self.is_risky = True
+
+                lidar2 = self.drone.lidars[2]
+                if lidar2.current_distance <= self.max_risky_distance / 3:
+                    self.is_risky = True
+
+                if not self.is_risky:
+                    self.move_towards_last_point(delta_time, last_point)
                 else:
-                    if a < b:
-                        spin_by *= -1
+                    return
+            else:
+                if not self.try_to_escape:
+                    self.try_to_escape = True
+                    lidar1 = self.drone.lidars[1]
+                    a = lidar1.current_distance
 
-                self.spin_by2(spin_by, True, lambda: self.reset_risk())
+                    lidar2 = self.drone.lidars[2]
+                    b = lidar2.current_distance
+
+                    spin_by = self.max_angle_risky
+
+                    if a > 270 and b > 270:
+                        self.is_lidars_max = True
+                        l1 = Tools.get_point_by_distance(drone_point, lidar1.degrees + self.drone.get_gyro_rotation(),
+                                                         lidar1.current_distance)
+                        l2 = Tools.get_point_by_distance(drone_point, lidar2.degrees + self.drone.get_gyro_rotation(),
+                                                         lidar2.current_distance)
+                        last_point = self.get_avg_last_point()
+                        dis_to_lidar1 = Tools.get_distance_between_points(last_point, l1)
+                        dis_to_lidar2 = Tools.get_distance_between_points(last_point, l2)
+                        spin_by = 90
+                        if dis_to_lidar1 < dis_to_lidar2:
+                            spin_by *= -1
+
+                    else:
+                        if a < b:
+                            spin_by *= -1
+
+                    self.spin_by2(spin_by, True, lambda: self.reset_risk())
+                else:
+                    self.move_towards_last_point(delta_time, last_point)
+
+    def move_towards_last_point(self, delta_time, last_point):
+        """Move the drone towards the last point."""
+        drone_point = self.drone.get_optical_sensor_location()
+        angle_to_point = Tools.get_rotation_between_points(drone_point, last_point)
+
+        # Calculate the difference between the current rotation and the target angle
+        rotation_difference = angle_to_point - (self.drone.get_gyro_rotation() + 90)
+
+
+
+        # Rotate towards the last point using spin_by2
+        self.spin_by2(-angle_to_point, False, lambda: self.reset_risk())
+        self.move_forward(delta_time, 10)
+
+    def move_forward(self, delta_time, distance):
+        """Move the drone forward by a specified distance."""
+        self.drone.speed_up(delta_time)
 
     def perform_snake_movement(self, delta_time):
         zigzag_angle = 10
@@ -423,8 +504,7 @@ class AutoAlgo1:
 
         self.move_forward(delta_time, zigzag_distance)
 
-    def move_forward(self, delta_time, distance):
-        self.drone.speed_up(delta_time)
+
 ############################################################################################
 
 #################### keep right driver function ##############################################
@@ -526,3 +606,100 @@ class AutoAlgo1:
 
         self.spin_by(keep_right_angle)
         self.move_forward(delta_time, keep_right_distance)
+
+
+############################################################################################
+
+
+
+    def stay_in_middle_driver(self, delta_time):
+        if not self.toggle_keep_middle_driver:
+            return
+
+        if self.is_init:
+            self.speed_up()
+            drone_point = self.drone.get_optical_sensor_location()
+            self.init_point = Point(drone_point.x, drone_point.y)
+            self.points.append(drone_point)
+            self.m_graph.add_vertex(drone_point)
+            self.is_init = False
+
+        drone_point = self.drone.get_optical_sensor_location()
+
+        if self.return_home:
+            if Tools.get_distance_between_points(self.get_last_point(), drone_point) < self.max_distance_between_points:
+                if len(self.points) <= 1 and Tools.get_distance_between_points(self.get_last_point(),
+                                                                               drone_point) < self.max_distance_between_points / 5:
+                    self.speed_down()
+                else:
+                    self.remove_last_point()
+            else:
+                if Tools.get_distance_between_points(self.get_last_point(),
+                                                     drone_point) >= self.max_distance_between_points:
+                    self.points.append(drone_point)
+                    self.m_graph.add_vertex(drone_point)
+
+        if not self.is_risky:
+            lidar_left = self.drone.lidars[2]
+            lidar_right = self.drone.lidars[1]
+            mid_point = (lidar_left.current_distance + lidar_right.current_distance) / 2
+
+            if lidar_left.current_distance <= self.max_risky_distance or lidar_right.current_distance <= self.max_risky_distance:
+                self.is_risky = True
+
+            else:
+                self.keep_middle_movement(delta_time, mid_point)
+
+        else:
+            if not self.try_to_escape:
+                self.try_to_escape = True
+                lidar1 = self.drone.lidars[1]
+                a = lidar1.current_distance
+
+                lidar2 = self.drone.lidars[2]
+                b = lidar2.current_distance
+
+                spin_by = self.max_angle_risky
+
+                if a > 270 and b > 270:
+                    self.is_lidars_max = True
+                    l1 = Tools.get_point_by_distance(drone_point, lidar1.degrees + self.drone.get_gyro_rotation(),
+                                                     lidar1.current_distance)
+                    l2 = Tools.get_point_by_distance(drone_point, lidar2.degrees + self.drone.get_gyro_rotation(),
+                                                     lidar2.current_distance)
+                    last_point = self.get_avg_last_point()
+                    dis_to_lidar1 = Tools.get_distance_between_points(last_point, l1)
+                    dis_to_lidar2 = Tools.get_distance_between_points(last_point, l2)
+
+                    if self.return_home:
+                        if Tools.get_distance_between_points(self.get_last_point(),
+                                                             drone_point) < self.max_distance_between_points:
+                            self.remove_last_point()
+                    else:
+                        if Tools.get_distance_between_points(self.get_last_point(),
+                                                             drone_point) >= self.max_distance_between_points:
+                            self.points.append(drone_point)
+                            self.m_graph.add_vertex(drone_point)
+
+                    spin_by = 90
+                    if self.return_home:
+                        spin_by *= -1
+
+                    if dis_to_lidar1 < dis_to_lidar2:
+                        spin_by *= -1
+
+                else:
+                    if a < b:
+                        spin_by *= -1
+
+                self.spin_by2(spin_by, True, lambda: self.reset_risk())
+
+    def keep_middle_movement(self, delta_time, mid_point):
+        if mid_point < 0:
+            self.spin_by(self.max_rotation_to_direction)
+        elif mid_point > 0:
+            self.spin_by(-self.max_rotation_to_direction)
+        self.move_forward(delta_time, 10)
+
+
+
